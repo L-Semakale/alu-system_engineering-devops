@@ -1,44 +1,18 @@
 #!/usr/bin/env bash
-# Script to install nginx on web server
+# script to install nginx on web server
 
-# Update package lists
 apt-get update
-
-# Install nginx
 apt-get install -y nginx
 
-# Create the directory for web content if it doesn't already exist
-mkdir -p /var/www/html
-
-# Create the index.html file with the content "Holberton School"
-echo "Holberton School" > /var/www/html/index.html
-
-# Configure Nginx to use the new root directory and serve the index.html file
-cat > /etc/nginx/sites-available/default << EOL
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm;
-
-    server_name _;
-
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
+mkdir /etc/nginx/html
+touch /etc/nginx/html/index.html
+echo "Holberton School" > /etc/nginx/html/index.html
+printf %s "server {
+     listen      80 default_server;
+     listen      [::]:80 default_server;
+     root        /etc/nginx/html;
+     index       index.html index.htm;
 }
-EOL
+" > /etc/nginx/sites-available/default
 
-# Restart Nginx to apply the new configuration
-systemctl restart nginx
-
-# Verify if the server is running correctly by checking the response code
-response_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost/)
-
-if [ "$response_code" -eq 200 ]; then
-    echo "Your server web01 returns 200 when querying /"
-else
-    echo "Your server web01 did not return 200 as expected. Response code: $response_code"
-fi
-
+service nginx restart
